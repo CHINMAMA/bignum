@@ -1,8 +1,9 @@
 #include "bignum.hpp"
 #include <string.h>
+#define MAX_ITERATIONS 100
 
 Bignum::Bignum() {
-    exp = 1;
+    exp = 0;
     sign = 1;
     digits = std::vector<int8_t>(1, 0);
 }
@@ -69,6 +70,10 @@ std::string Bignum::to_string() {
         if (len - i - 1 == exp && i != 0) {
             res += '.';
         }
+    }
+
+    for (int i = len - 1; i < exp; ++i) {
+        res += '0';
     }
 
     return res;
@@ -280,20 +285,40 @@ Bignum Bignum::operator*(const Bignum& value) const {
     return res;
 }
 
-// Bignum Bignum::operator/(const Bignum& value) const {
-//     Bignum res;
-//     Bignum divident;
-//     for (int i = 0; i < digits.size(); ++i) {
-//         divident.digits.push_back(digits[i]);
-//         int k = 0;
-//         while (divident > value || divident == value) {
-//             divident = divident - value;
-//             ++k;
-//         }
-//         res.digits.push_back(k);
-//     }
-//     return res;
-// }
+Bignum Bignum::operator/(const Bignum& value) const {
+    Bignum res;
+    Bignum dividend(*this);
+    Bignum divisor(value);
+    res.sign = dividend.sign * divisor.sign;
+    dividend.exp += divisor.digits.size() - divisor.exp - 1;
+    divisor.exp = divisor.digits.size() - 1;
+    
+    res.exp = dividend.exp - divisor.exp - 2;
+
+    Bignum cur_div;
+    cur_div.digits.erase(cur_div.digits.begin());
+    --cur_div.exp;
+    bool div_init_flag = false;
+    for (int i = dividend.digits.size() - 1; i >= 0 || (!cur_div.is_zero() && -i < MAX_ITERATIONS); --i) {
+        cur_div.digits.insert(cur_div.digits.begin(), i >= 0 ? digits[i] : 0);
+        ++cur_div.exp;
+        int k = 0;
+        while (cur_div > divisor || cur_div == divisor) {
+            div_init_flag = true;
+            cur_div = cur_div - divisor;
+            ++k;
+        }
+        res.digits.insert(res.digits.begin(), k);
+        res.exp += div_init_flag && (i >= 0);
+    }
+
+    while (res.digits.back() == 0) {
+        res.digits.erase(res.digits.end() - 1);
+    }
+    
+    res.remove_zeroes();
+    return res;
+}
 
 Bignum operator ""_bn(const char* str) {
     return Bignum(str);

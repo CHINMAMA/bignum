@@ -15,7 +15,7 @@ public:
     void remove_zeroes();
 public:
     Bignum();
-    Bignum(const char*);
+    explicit Bignum(const char*);
     Bignum operator-() const;
 
     Bignum operator+(const Bignum&) const;
