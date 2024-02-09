@@ -1,8 +1,11 @@
-#include "bignum.hpp"
+#include "BigNum/bignum.hpp"
 #include <iostream>
 
+using namespace bignum;
+
 int main(void) {
-    auto p = 0.12_bn;
-    std::cout << (0.000169_bn / 13_bn).to_string() << '\n';
+    std::cout << (calculate_pi(10)).to_string() << '\n';
+
     return 0;
 }
+
