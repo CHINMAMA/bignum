@@ -115,6 +115,10 @@ namespace bignum {
         if (sign != value.sign) {
             return sign < value.sign;
         }
+        
+        if (sign == -1 && value.sign == -1) {
+            return -value < -(*this);
+        }
 
         if (exp != value.exp) {
             if (is_zero()) {
